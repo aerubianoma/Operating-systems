@@ -3,7 +3,7 @@
 
 
 int menu() {
-	int entrada;
+	int entrada=5;
 	printf("1. Ingresar Origen \n");
 	printf("2. Ingresar destino \n");
 	printf("3. Ingresar hora \n");
@@ -14,9 +14,10 @@ return entrada;
 }
 
 int main() {
-	printf("Bienvenido \n");
 	int a=menu();
 	int IDorig=0,IDFinal=0,Hora=24;
+	FILE *fp=fopen("Busqueda.csv","w+");
+	printf("Bienvenido \n");
 	while(a!=5){
 		switch(a){
 			case 1:
@@ -42,7 +43,8 @@ int main() {
 			break;
 			case 4:
 				printf("Buscará el tiempo \n");
-				a=menu();
+				fprintf(fp,"%d,%d,%d\n",IDorig,IDFinal,Hora);
+				a=5;
 			break;
 			case 5:
 				printf("Salió \n");

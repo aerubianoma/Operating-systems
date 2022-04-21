@@ -92,7 +92,7 @@ int main(){
 	char *token;
 
     // Open the csv of our the dataset from dropbox in lecture mode
-    FILE *fp_raw = fopen("bogota-cadastral-2020-1-All-HourlyAggregate.csv","r");
+    FILE *fp_raw = fopen("../bogota-cadastral-2020-1-All-HourlyAggregate.csv","r");
     // Open a binary file with the data from the dataset with a new column, in write and creation mode
     FILE *fp = fopen("bogotaTimes.bin", "wb+");
 
