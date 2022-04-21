@@ -1,14 +1,16 @@
+// Necessary libraries
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
+
+// File that has the struct
 #include "binGen/node.h"                                                                
 
 // Lenght of all the idOrigen in the dataset
 #define HASH_SIZE 1160
 // Lenght for the chars in a row
-#define MAXCHAR 1000
-                                                              
+#define MAXCHAR 1000                                                              
 
 // Search the time from idOrigen to idDestino at an specific hour
 float search(int idO, int idD, int hora, FILE *times, FILE *hash){                
@@ -58,38 +60,49 @@ float search(int idO, int idD, int hora, FILE *times, FILE *hash){
 
 int main(){
 
-    	// Open a binary file with the data from the dataset, in read and creation mode
-    	FILE *times = fopen("binGen/bogotaTimes.bin", "rb+");
-    	// Open a binary file with the hash table, in read and creation mode
-	FILE *hash = fopen("binGen/hashTable.bin", "rb+");
-	// Open a csv file with the data for search, in read and creation mode
-    	FILE *data = fopen("Busqueda.csv","r");
-	// Variable for the rows in data
-   	static char row[MAXCHAR];
-   	// Variable for the items in the rows
-	static char *token;
-    
-    
-	// Obtain the first row of the file with a max size of 1000 characters
-	fgets(row, MAXCHAR, data);
-	token=strtok(row, ",");
+    // Open a binary file with the data from the dataset, in read and creation mode
+    FILE *times = fopen("binGen/bogotaTimes.bin", "rb+");
+    // Open a binary file with the hash table, in read and creation mode
+    FILE *hash = fopen("binGen/hashTable.bin", "rb+");
+    // Open the csv with the input data
+    FILE *fp_raw = fopen("searchData.csv","r");
+
+    // Variable for the rows in fp_raw (the dataset from dropbox) 
+    char row_s[MAXCHAR];
+    // Get the values in the columns
+    char *token1;
+    char *token2;
+    char *token3;
+
+    // Set the pointer in the begining of the file fp_raw
+    rewind(fp_raw);
+    fgets(row_s, MAXCHAR,fp_raw); 
+    // Get the data that is before the first , and save it in token (idOrigen)
+    token1 = strtok(row_s, ",");    
     // IdOrigen that we want
-    int idO = atoi(token);
+    int idO = atoi(token1);
+    // Get the data that is after the first , and before the next ,    
+    token2 = strtok(NULL,",");
     // IdDestino that we want
-    token=strtok(NULL,",");
-    int idD = atoi(token);
+    int idD = atoi(token2);
+    // Get the data that is after the second , and before the next ,
+    token3 = strtok(NULL,",");
     // Hora that we want
-    token=strtok(NULL,",");
-    int hora = atoi(token);
+    int hora = atof(token3);
 
     // Call the function search to look for the time that we want 
     float time = search(idO, idD, hora, times, hash);
     // There is no time for that configuration
     if(time == -1){
+        printf("______________________________________ \n");
         printf("Data not found\n");
+        printf("______________________________________ \n");
     // Return the answer
     }else{
+        printf("______________________________________ \n");
+        printf("Su tiempo promedio es:\n");
         printf("%f\n", time);
+        printf("______________________________________ \n");
     }
 
     // Close the file times

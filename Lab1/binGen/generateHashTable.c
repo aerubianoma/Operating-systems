@@ -11,6 +11,7 @@
 int main(){
 
     // Instantiate the necessary variables
+    
     // The big csv from dropbox with all the data
     static FILE *fp;
     // The new csv with our hash table
@@ -25,7 +26,7 @@ int main(){
 	static bool Revisados[1160];
 
 	// Open the csv from dropbox in lecture mode
-    fp = fopen("../bogota-cadastral-2020-1-All-HourlyAggregate.csv","r");
+    fp = fopen("bogota-cadastral-2020-1-All-HourlyAggregate.csv","r");
 	// Open our csv with oun hash table in write and creation mode
 	hashTable = fopen("hashTable.csv","w+");
 
