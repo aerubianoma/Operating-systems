@@ -1,3 +1,8 @@
+Members:
+- Andres Eduardo Rubiano Martinez aerubianoma@unal.edu.co		
+- Santiago Tovar Mosquera satovarmo@unal.edu.co
+- Diego Fernando Bello Lopez dbello@unal.edu.co
+
 This app can search in very fast way using hash tables over a csv file that has 320 mb aprox.
 
 To use it please download the file that is in this link: https://www.dropbox.com/s/9vrw4e4favedb6a/bogota-cadastral-2020-1-All-HourlyAggregate.csv?dl=0 
