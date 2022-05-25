@@ -28,7 +28,7 @@ int serverfd;
 int main(){
 
     int sizes[] = {1024,10240,102400,1048576,10485760,104857600};
-    int r, l = 0;
+    int r, l = 2;
     int* data = malloc(sizes[l]);
 
 	struct timeval start, end;

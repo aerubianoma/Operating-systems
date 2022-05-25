@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in client;
     struct hostent *he;
     int sizes[] = {1024,10240,102400,1048576,10485760,104857600};
-    int l = 0;
+    int l = 2;
     int* data = malloc(sizes[l]);
 
 	struct timeval start, end;
