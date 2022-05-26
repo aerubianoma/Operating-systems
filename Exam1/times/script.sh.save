@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "Here is the average time for pipelines data transfer"
+gcc time_pipelines.c -o pipes
+chmod +x pipes
+./pipes
