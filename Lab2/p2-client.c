@@ -7,10 +7,9 @@
  
 void send_file(FILE *fp, int sockfd){
   int n;
-  char data[SIZE] = {0};
+  char data[SIZE];
  
   while(fgets(data, SIZE, fp) != NULL) {
-  	printf("%s",data);
     if (send(sockfd, data, sizeof(data), 0) == -1) {
       perror("[-]Error in sending file.");
       exit(1);
@@ -18,7 +17,7 @@ void send_file(FILE *fp, int sockfd){
     bzero(data, SIZE);
   }
 }
- 
+
 int menu() {
 	int entrada=0;
 	printf("______________________________________ \n");
@@ -71,9 +70,7 @@ int main(int argc, char *argv[]){
 			case 4:
 				printf("______________________________________ \n");
 				printf("Archivo con datos generado! \n");
-				fprintf(fp,"%d\n",IDorig);
-				fprintf(fp,"%d\n",IDFinal);
-				fprintf(fp,"%d\n",Hora);
+				fprintf(fp,"%d,%d,%d\n",IDorig,IDFinal,Hora);
 				printf("______________________________________ \n");
 				a=5;
 			break;
@@ -90,6 +87,7 @@ int main(int argc, char *argv[]){
 			break;
 		}
 	}
+  fclose(fp);
 
   char *ip = "127.0.0.1";
   int port = 8080;
@@ -124,10 +122,9 @@ int main(int argc, char *argv[]){
  
   send_file(fp, sockfd);
   printf("[+]File data sent successfully.\n");
- 
   printf("[+]Closing the connection.\n");
   close(sockfd);
- 
+  fclose(fp);
   return 0;
 }
 	
