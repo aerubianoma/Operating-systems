@@ -3,6 +3,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <stdbool.h>
+#include <time.h>
 #include "binGen/node.h"  
 #define SIZE 1024
 #define MAXCHAR 1000    
@@ -77,6 +78,7 @@ int main(){
   char *ip = "127.0.0.1";
   int port = 8080;
   int e;
+  time_t T = time(NULL);
 
   int sockfd, new_sock;
   struct sockaddr_in server_addr, new_addr;
@@ -156,6 +158,10 @@ int main(){
         printf("%f\n", time);
         printf("______________________________________ \n");
     }
+
+    struct tm tm = *localtime(&T);
+    FILE *logs = fopen("logs.txt", "a");
+    fprintf(logs, "Fecha: %04d/%02d/%02d %02d:%02d:%02d  Cliente: %s [%f - %d - %d - %d]\n", tm.tm_year + 1900, tm.tm_mon +1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(new_addr.sin_addr),time, idO, idD, hora);
 
     // Close the file times
     fclose(times);
