@@ -1,32 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdbool.h>
 #include <time.h>
 #include "binGen/node.h"  
-#define SIZE 1024
-#define MAXCHAR 1000    
- 
-void write_file(int sockfd){
-  int n;
-  FILE *fp;
-  char *filename = "recv.txt";
-  char buffer[SIZE];
- 
-  fp = fopen(filename, "w");
-  while (1) {
-    n = recv(sockfd, buffer, SIZE, 0);
-    if (n <= 0){
-      break;
-      return;
-    }
-    fprintf(fp, "%s", buffer);
-    bzero(buffer, SIZE);
-  }
-  fclose(fp);
-  return;
-}
+
+#define PORT 4444
 
 // Search the time from idOrigen to idDestino at an specific hour
 float search(int idO, int idD, int hora, FILE *times, FILE *hash){                
@@ -73,100 +57,119 @@ float search(int idO, int idD, int hora, FILE *times, FILE *hash){
     return -1;
 }
 
- 
 int main(){
-  char *ip = "127.0.0.1";
-  int port = 8080;
-  int e;
-  time_t T = time(NULL);
 
-  int sockfd, new_sock;
-  struct sockaddr_in server_addr, new_addr;
-  socklen_t addr_size;
-  char buffer[SIZE];
+    // Variable to take the date and time in the log file
+	time_t T = time(NULL);
 
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if(sockfd < 0) {
-    perror("[-]Error in socket");
-    exit(1);
-  }
-  printf("[+]Server socket created successfully.\n");
+    // Variables neccesary to initiate the server
+	int sockfd, ret;
+	struct sockaddr_in serverAddr;
 
-  server_addr.sin_family = AF_INET;
-  server_addr.sin_port = port;
-  server_addr.sin_addr.s_addr = inet_addr(ip);
+    // Variables to take the connection of the multiple clients
+	int newSocket;
+	struct sockaddr_in newAddr;
+	socklen_t addr_size;
 
-  e = bind(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr));
-  if(e < 0) {
-    perror("[-]Error in bind");
-    exit(1);
-  }
-  printf("[+]Binding successfull.\n");
+    // Variables for the inputs of the search received from the client and the output that we are going to send
+	int buffer[3];
+    char output[1024];
 
-  if(listen(sockfd, 10) == 0){
-  printf("[+]Listening....\n");
-  }else{
-  perror("[-]Error in listening");
-    exit(1);
-  }
+    // Parent id for the fork
+	pid_t childpid;
 
-  addr_size = sizeof(new_addr);
-  new_sock = accept(sockfd, (struct sockaddr*)&new_addr, &addr_size);
-  write_file(new_sock);
-  printf("[+]Data written in the file successfully.\n");
-      // Open a binary file with the data from the dataset, in read and creation mode
-    FILE *times = fopen("binGen/bogotaTimes.bin", "rb+");
-    // Open a binary file with the hash table, in read and creation mode
-    FILE *hash = fopen("binGen/hashTable.bin", "rb+");
-    // Open the csv with the input data
-    FILE *fp_raw = fopen("recv.txt","r");
+    // Create the socket for the server
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-    // Variable for the rows in fp_raw (the dataset from dropbox) 
-    char row_s[MAXCHAR];
-    // Get the values in the columns
-    char *token1;
-    char *token2;
-    char *token3;
+    // Check error in socket creation
+	if(sockfd < 0){
+		printf("[-]Error in connection.\n");
+		exit(1);
+	}
+	printf("[+]Server Socket is created.\n");
 
-    // Set the pointer in the begining of the file fp_raw
-    rewind(fp_raw);
-    fgets(row_s, MAXCHAR,fp_raw); 
-    // Get the data that is before the first , and save it in token (idOrigen)
-    token1 = strtok(row_s, ",");    
-    // IdOrigen that we want
-    int idO = atoi(token1);
-    // Get the data that is after the first , and before the next ,    
-    token2 = strtok(NULL,",");
-    // IdDestino that we want
-    int idD = atoi(token2);
-    // Get the data that is after the second , and before the next ,
-    token3 = strtok(NULL,",");
-    // Hora that we want
-    int hora = atof(token3);
+    // Struct necessary for the connection
+	memset(&serverAddr, '\0', sizeof(serverAddr));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(PORT);
+	serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-    // Call the function search to look for the time that we want 
-    float time = search(idO, idD, hora, times, hash);
-    // There is no time for that configuration
-    if(time == -1){
-        printf("______________________________________ \n");
-        printf("Data not found\n");
-        printf("______________________________________ \n");
-    // Return the answer
-    }else{
-        printf("______________________________________ \n");
-        printf("Su tiempo promedio es:\n");
-        printf("%f\n", time);
-        printf("______________________________________ \n");
-    }
+    // Initiate the server
+	ret = bind(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
 
-    struct tm tm = *localtime(&T);
-    FILE *logs = fopen("logs.txt", "a");
-    fprintf(logs, "Fecha: %04d/%02d/%02d %02d:%02d:%02d  Cliente: %s [%f - %d - %d - %d]\n", tm.tm_year + 1900, tm.tm_mon +1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(new_addr.sin_addr),time, idO, idD, hora);
+    // Check error in bind
+	if(ret < 0){
+		printf("[-]Error in binding.\n");
+		exit(1);
+	}
+	printf("[+]Bind to port %d\n", 4444);
 
-    // Close the file times
-    fclose(times);
-    // Close the file hash
-    fclose(hash);
+	if(listen(sockfd, 32) == 0){
+		printf("[+]Listening....\n");
+	}else{
+		printf("[-]Error in binding.\n");
+	}
 
-  return 0;
+    // The server will be listening forever
+	while(1){
+
+        //Connect with the client
+		newSocket = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
+
+        // Check error in the connection
+		if(newSocket < 0){
+			exit(1);
+		}
+		printf("Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
+
+        // We fork here and that allow us to receibe multiple clients
+		if((childpid = fork()) == 0){
+			
+            // Here we close the socket of the server, that not permits more accept from it
+            close(sockfd);
+
+            // We receive the information from the client
+			recv(newSocket, buffer, sizeof(buffer), 0);
+
+		    // Open a binary file with the data from the dataset, in read and creation mode
+            FILE *times = fopen("binGen/bogotaTimes.bin", "rb+");
+            // Open a binary file with the hash table, in read and creation mode
+            FILE *hash = fopen("binGen/hashTable.bin", "rb+");
+   
+            // IdOrigen that we want
+            int idO = buffer[0];
+
+            // IdDestino that we want
+            int idD = buffer[1];
+
+            // Hora that we want
+            int hora = buffer[2];
+
+            // Call the function search to look for the time that we want 
+            float time = search(idO, idD, hora, times, hash);
+
+            // Convert float to string
+            gcvt(time,10,output);
+            
+            // We send the output to the client
+            send(newSocket, output, strlen(output), 0);
+            bzero(output, sizeof(output));
+
+            // Here we save the important info in a log file
+            struct tm tm = *localtime(&T);
+            FILE *logs = fopen("logs.txt", "a");
+            fprintf(logs, "Fecha: %04d/%02d/%02d %02d:%02d:%02d  Cliente: %s [%f - %d - %d - %d]\n", tm.tm_year + 1900, tm.tm_mon +1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(newAddr.sin_addr),time, idO, idD, hora);
+
+            // Close the file times
+            fclose(times);
+            // Close the file hash
+            fclose(hash);			
+		}
+
+	}
+
+    // Here we close the socket of the client
+	close(newSocket);
+    
+	return 0;
 }
