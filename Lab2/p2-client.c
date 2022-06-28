@@ -68,7 +68,7 @@ int main(){
 			break;
 			case 4:
 				printf("______________________________________ \n");
-				printf("Archivo con datos generado! \n");
+				printf("Datos enviados \n");
 				msg[0] = IDorig;
 				msg[1] = IDFinal;
 				msg[2] = Hora;

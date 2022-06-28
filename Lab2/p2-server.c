@@ -86,7 +86,7 @@ int main(){
 		printf("[-]Error in connection.\n");
 		exit(1);
 	}
-	printf("[+]Server Socket is created.\n");
+
 
     // Struct necessary for the connection
 	memset(&serverAddr, '\0', sizeof(serverAddr));
@@ -102,10 +102,10 @@ int main(){
 		printf("[-]Error in binding.\n");
 		exit(1);
 	}
-	printf("[+]Bind to port %d\n", 4444);
+
 
 	if(listen(sockfd, 32) == 0){
-		printf("[+]Listening....\n");
+		
 	}else{
 		printf("[-]Error in binding.\n");
 	}
@@ -120,7 +120,7 @@ int main(){
 		if(newSocket < 0){
 			exit(1);
 		}
-		printf("Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
+		
 
         // We fork here and that allow us to receibe multiple clients
 		if((childpid = fork()) == 0){
@@ -158,7 +158,7 @@ int main(){
             // Here we save the important info in a log file
             struct tm tm = *localtime(&T);
             FILE *logs = fopen("logs.txt", "a");
-            fprintf(logs, "Fecha: %04d/%02d/%02d %02d:%02d:%02d  Cliente: %s [%f - %d - %d - %d]\n", tm.tm_year + 1900, tm.tm_mon +1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(newAddr.sin_addr),time, idO, idD, hora);
+            fprintf(logs, "[Fecha %04d/%02d/%02dT%02d:%02d:%02d]  Cliente [%s] [%f - %d - %d - %d]\n", tm.tm_year + 1900, tm.tm_mon +1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, inet_ntoa(newAddr.sin_addr),time, idO, idD, hora);
 
             // Close the file times
             fclose(times);
