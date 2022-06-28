@@ -1,3 +1,8 @@
+Integrantes:
+Diego Fernando Bello Lopez.
+Andres Eduardo Rubiano Martinez.
+Santiago Tovar Mosquera.
+
 This practice allow us to search data time from a uber database in bogota.
 
 - The comand make all compile the scrypts.
