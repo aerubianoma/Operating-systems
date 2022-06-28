@@ -4,4 +4,4 @@ This practice allow us to search data time from a uber database in bogota.
 - The comand make run run the server.
 - Each client has to be runned in different bash windows.
 
-For more information see the document informe.docx in the folder
+For more information see the document manuel de uso.docx in the folder
